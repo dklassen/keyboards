@@ -19,11 +19,15 @@ task default: :install
 
 desc 'Symlink keymap files into QMK source tree'
 task :install do
-  FileUtils.ln_s(File.expand_path('user', __dir__), USER_DIR, verbose: true) unless File.exist?(USER_DIR)
+  next if File.symlink?(USER_DIR) || File.exist?(USER_DIR)
 
+  FileUtils.ln_s(File.expand_path('user', __dir__), USER_DIR, verbose: true)
   KEYBOARDS.each_key do |keyboard|
     dest = keymap_dir(keyboard)
-    FileUtils.ln_s(File.expand_path(keyboard, __dir__), dest, verbose: true) unless File.exist?(dest)
+
+    next if File.symlink?(dest) || File.exist?(dest)
+
+    FileUtils.ln_s(File.expand_path(keyboard, __dir__), dest, verbose: true)
   end
 end
 
